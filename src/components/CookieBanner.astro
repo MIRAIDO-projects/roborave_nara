@@ -113,6 +113,9 @@ const cookieData: CookieConsentData = {
         denyBtn.addEventListener("click", () => updateConsent("denied"));
     };
 
+    // Run on initial load
+    initCookieBanner();
+
     // Support for Astro View Transitions
     document.addEventListener("astro:page-load", initCookieBanner);
 </script>
