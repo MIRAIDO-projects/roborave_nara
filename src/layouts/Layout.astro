@@ -3,6 +3,8 @@ import { SEO } from "astro-seo";
 import Schema from "../components/Schema.astro";
 import "../styles/global.css";
 
+import CookieBanner from "../components/CookieBanner.astro";
+
 interface Props {
 	title?: string;
 	description?: string;
@@ -77,6 +79,7 @@ interface Props {
 		class="bg-white min-h-screen text-gray-900 font-sans antialiased selection:bg-orange-500 selection:text-white"
 	>
 		<slot />
+		<CookieBanner />
 
 		<script>
 			import Lenis from "lenis";

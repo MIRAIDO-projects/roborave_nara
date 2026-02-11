@@ -1,0 +1,118 @@
+---
+interface CookieConsentData {
+    text: string;
+    agreeLabel: string;
+    denyLabel: string;
+}
+
+const cookieData: CookieConsentData = {
+    text: "当サイトではUX向上のためにCookieを使用します。同意することで、より良いブラウジング体験を提供できます。",
+    agreeLabel: "同意する",
+    denyLabel: "拒否する",
+};
+---
+
+<div
+    id="cookie-banner"
+    class="fixed bottom-0 left-0 w-full z-[100] bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] invisibility opacity-0 translate-y-full"
+    style="visibility: hidden;"
+>
+    <div class="container mx-auto px-4 py-4 md:py-6">
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8"
+        >
+            <p
+                class="text-sm text-gray-700 leading-relaxed text-center md:text-left"
+            >
+                {cookieData.text}
+            </p>
+            <div class="flex items-center gap-3 shrink-0 w-full md:w-auto">
+                <button
+                    id="cookie-deny"
+                    class="flex-1 md:flex-none py-2 px-6 text-sm font-medium text-gray-600 bg-transparent border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
+                >
+                    {cookieData.denyLabel}
+                </button>
+                <button
+                    id="cookie-agree"
+                    class="flex-1 md:flex-none py-2 px-6 text-sm font-bold text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                    {cookieData.agreeLabel}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    import { gsap } from "gsap";
+
+    const CONSENT_KEY = "site_consent_status";
+
+    // Check consent status and initialize
+    const initCookieBanner = () => {
+        const banner = document.getElementById("cookie-banner");
+        const agreeBtn = document.getElementById("cookie-agree");
+        const denyBtn = document.getElementById("cookie-deny");
+
+        if (!banner || !agreeBtn || !denyBtn) return;
+
+        // Check if user has already made a choice
+        const savedConsent = localStorage.getItem(CONSENT_KEY);
+
+        if (savedConsent) {
+            banner.style.display = "none";
+            return;
+        }
+
+        // Initial state for animation
+        gsap.set(banner, { y: "100%", opacity: 0, visibility: "visible" });
+
+        // In-Animation (Delay 1.0s)
+        gsap.to(banner, {
+            y: "0%",
+            opacity: 1,
+            duration: 1.0,
+            delay: 1.0,
+            ease: "power3.out",
+        });
+
+        // Handle Consent Update
+        const updateConsent = (status: "granted" | "denied") => {
+            // 1. Save to LocalStorage
+            localStorage.setItem(CONSENT_KEY, status);
+
+            // 2. GTM Consent Mode v2 Integration
+            if (typeof window.gtag === "function") {
+                window.gtag("consent", "update", {
+                    ad_storage: status,
+                    ad_user_data: status,
+                    ad_personalization: status,
+                    analytics_storage: status,
+                });
+
+                // Push event to dataLayer
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ event: "consent_updated" });
+            }
+
+            // 3. Out-Animation
+            gsap.to(banner, {
+                y: "100%",
+                opacity: 0,
+                duration: 0.5,
+                ease: "power2.in",
+                onComplete: () => {
+                    banner.style.display = "none";
+                },
+            });
+        };
+
+        // Event Listeners
+        agreeBtn.addEventListener("click", () => updateConsent("granted"));
+        denyBtn.addEventListener("click", () => updateConsent("denied"));
+    };
+
+    // Support for Astro View Transitions
+    document.addEventListener("astro:page-load", initCookieBanner);
+</script>
