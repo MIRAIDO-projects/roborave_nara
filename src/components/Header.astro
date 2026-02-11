@@ -1,0 +1,109 @@
+---
+const links = [
+    { href: "/#hero", label: "ホーム" },
+    { href: "/#competitions", label: "競技カテゴリー" },
+    { href: "/#news", label: "ニュース" },
+    { href: "/#about", label: "概要" },
+    { href: "/#workshop", label: "講習会" },
+    { href: "/#contact", label: "お問い合わせ" },
+];
+---
+
+<header
+    class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm"
+>
+    <div
+        class="container mx-auto px-4 py-3 relative flex justify-center items-center h-24"
+    >
+        <!-- Logo (Centered) -->
+        <a href="/" class="flex items-center justify-center">
+            <img
+                src="/assets/logo_new.jpg"
+                alt="RoboRAVE Nara"
+                class="h-10 md:h-20 w-auto object-contain"
+            />
+        </a>
+
+        <!-- Hamburger Button (Right aligned) -->
+        <button
+            id="menu-toggle"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-black p-2 z-50"
+            aria-label="Menu"
+        >
+            <div class="w-6 h-5 relative flex flex-col justify-between">
+                <span
+                    class="w-full h-0.5 bg-black transition-all duration-300 origin-center"
+                    id="line1"></span>
+                <span
+                    class="w-full h-0.5 bg-black transition-all duration-300 opacity-100"
+                    id="line2"></span>
+                <span
+                    class="w-full h-0.5 bg-black transition-all duration-300 origin-center"
+                    id="line3"></span>
+            </div>
+        </button>
+
+        <!-- Full Screen Menu Overlay -->
+        <nav
+            id="menu-overlay"
+            class="fixed inset-0 bg-white/95 backdrop-blur-xl z-40 translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-center items-center"
+        >
+            <div class="space-y-8 text-center">
+                {
+                    links.map((link) => (
+                        <a
+                            href={link.href}
+                            class="block text-2xl font-bold text-gray-900 hover:text-orange-500 transition-colors uppercase tracking-widest menu-link"
+                        >
+                            {link.label}
+                        </a>
+                    ))
+                }
+            </div>
+        </nav>
+    </div>
+</header>
+
+<script>
+    const menuToggle = document.getElementById("menu-toggle");
+    const menuOverlay = document.getElementById("menu-overlay");
+    const line1 = document.getElementById("line1");
+    const line2 = document.getElementById("line2");
+    const line3 = document.getElementById("line3");
+    const menuLinks = document.querySelectorAll(".menu-link");
+
+    let isOpen = false;
+
+    function toggleMenu() {
+        isOpen = !isOpen;
+
+        if (isOpen) {
+            menuOverlay?.classList.remove("translate-x-full");
+            document.body.style.overflow = "hidden";
+
+            // Hamburger animation
+            line1?.classList.add("rotate-45", "translate-y-2");
+            line2?.classList.remove("opacity-100");
+            line2?.classList.add("opacity-0");
+            line3?.classList.add("-rotate-45", "-translate-y-2.5"); // Adjusted for perfect X
+        } else {
+            menuOverlay?.classList.add("translate-x-full");
+            document.body.style.overflow = "";
+
+            // Hamburger reset
+            line1?.classList.remove("rotate-45", "translate-y-2");
+            line2?.classList.remove("opacity-0");
+            line2?.classList.add("opacity-100");
+            line3?.classList.remove("-rotate-45", "-translate-y-2.5");
+        }
+    }
+
+    menuToggle?.addEventListener("click", toggleMenu);
+
+    // Close menu when a link is clicked
+    menuLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+            if (isOpen) toggleMenu();
+        });
+    });
+</script>

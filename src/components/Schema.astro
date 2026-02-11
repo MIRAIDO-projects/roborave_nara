@@ -1,0 +1,68 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+    type?: "WebSite" | "Article" | "Organization" | "LocalBusiness";
+    title: string;
+    description: string;
+    image?: string;
+    publishDate?: string;
+    authorName?: string;
+}
+
+const {
+    type = "WebSite",
+    title,
+    description,
+    image,
+    publishDate,
+    authorName = "RoboRAVE Nara",
+} = Astro.props;
+
+const siteUrl = Astro.site ? Astro.site.href : "https://example.com";
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+
+let schema: any = {
+    "@context": "https://schema.org",
+    "@type": type,
+    url: canonicalURL.href,
+    name: title,
+    description: description,
+};
+
+if (type === "Organization" || type === "LocalBusiness") {
+    schema = {
+        ...schema,
+        logo: `${siteUrl}logo.png`, // Placeholder
+        contactPoint: {
+            "@type": "ContactPoint",
+            telephone: "+81-00-0000-0000",
+            contactType: "Customer Service",
+        },
+    };
+}
+
+if (type === "Article") {
+    schema = {
+        ...schema,
+        "@type": "Article",
+        headline: title,
+        image: image,
+        datePublished: publishDate,
+        author: {
+            "@type": "Person",
+            name: authorName,
+        },
+        publisher: {
+            "@type": "Organization",
+            name: "RoboRAVE Nara",
+            logo: {
+                "@type": "ImageObject",
+                url: `${siteUrl}logo.png`,
+            },
+        },
+    };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

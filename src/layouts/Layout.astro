@@ -1,22 +1,102 @@
+---
+import { SEO } from "astro-seo";
+import Schema from "../components/Schema.astro";
+import "../styles/global.css";
+
+interface Props {
+	title?: string;
+	description?: string;
+	image?: string;
+	type?: "WebSite" | "Article" | "Organization" | "LocalBusiness";
+	publishDate?: string;
+}
+---
+
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
+
+		<SEO
+			title={Astro.props.title || "RoboRAVE Nara"}
+			titleTemplate="%s | RoboRAVE Nara"
+			description={Astro.props.description ||
+				"RoboRAVE Nara - 奈良で開催される国際ロボット競技大会。創造性とエンジニアリングの祭典。"}
+			openGraph={{
+				basic: {
+					title: Astro.props.title || "RoboRAVE Nara",
+					type: "website",
+					image: Astro.props.image || "/assets/hero_bg.png",
+				},
+			}}
+			twitter={{
+				creator: "@roborave_nara",
+			}}
+			extend={{
+				meta: [
+					{ name: "twitter:card", content: "summary_large_image" },
+				],
+			}}
+		/>
+		<Schema
+			title={Astro.props.title || "RoboRAVE Nara"}
+			description={Astro.props.description ||
+				"RoboRAVE Nara - 奈良で開催される国際ロボット競技大会。創造性とエンジニアリングの祭典。"}
+			type={Astro.props.type}
+			image={Astro.props.image}
+			publishDate={Astro.props.publishDate}
+		/>
+
+		<style is:global>
+			html.lenis,
+			html.lenis body {
+				height: auto;
+			}
+			.lenis.lenis-smooth {
+				scroll-behavior: auto !important;
+			}
+			.lenis.lenis-smooth [data-lenis-prevent] {
+				overscroll-behavior: contain;
+			}
+			.lenis.lenis-stopped {
+				overflow: hidden;
+			}
+			.lenis.lenis-scrolling iframe {
+				pointer-events: none;
+			}
+		</style>
 	</head>
-	<body>
+	<body
+		class="bg-white min-h-screen text-gray-900 font-sans antialiased selection:bg-orange-500 selection:text-white"
+	>
 		<slot />
+
+		<script>
+			import Lenis from "lenis";
+			import { gsap } from "gsap";
+			import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+			gsap.registerPlugin(ScrollTrigger);
+
+			// Initialize Lenis
+			const lenis = new Lenis({
+				duration: 1.2,
+				easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+			});
+
+			function raf(time: number) {
+				lenis.raf(time);
+				requestAnimationFrame(raf);
+			}
+
+			requestAnimationFrame(raf);
+		</script>
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

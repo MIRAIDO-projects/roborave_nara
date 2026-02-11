@@ -1,0 +1,40 @@
+---
+import { getNews } from "../../lib/microcms";
+import Layout from "../../layouts/Layout.astro";
+
+const response = await getNews({
+    fields: ["id", "title", "publishedAt", "category"],
+});
+const newsList = response.contents;
+---
+
+<Layout title="News">
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold mb-8">News</h1>
+        <div class="space-y-4">
+            {
+                newsList.map((news) => (
+                    <a href={`/news/${news.id}`} class="block group">
+                        <article class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 transition-all hover:shadow-md flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div class="text-sm text-gray-500 min-w-[100px]">
+                                <time datetime={news.publishedAt}>
+                                    {new Date(
+                                        news.publishedAt!,
+                                    ).toLocaleDateString()}
+                                </time>
+                            </div>
+                            <div class="flex-1">
+                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs mb-2 sm:mb-0 sm:mr-3">
+                                    {news.category?.name}
+                                </span>
+                                <h2 class="inline text-lg font-medium text-gray-900 group-hover:text-green-600 transition-colors">
+                                    {news.title}
+                                </h2>
+                            </div>
+                        </article>
+                    </a>
+                ))
+            }
+        </div>
+    </div>
+</Layout>

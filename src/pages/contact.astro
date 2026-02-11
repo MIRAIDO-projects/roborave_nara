@@ -1,0 +1,30 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ContactForm from "../components/ContactForm";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Contact Us | RoboRAVE Nara">
+    <Header />
+    <main
+        class="min-h-screen bg-white text-gray-900 pt-24 px-4 pb-20 selection:bg-orange-500 selection:text-white"
+    >
+        <div class="max-w-4xl mx-auto text-center mb-16">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6 text-blue-900">
+                お問い合わせ
+            </h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                大会に関するご質問、スポンサーについてなど、<br
+                />お気軽にお問い合わせください。
+            </p>
+        </div>
+
+        <div
+            class="w-full max-w-2xl mx-auto bg-white border border-gray-200 rounded-3xl p-8 md:p-12 shadow-2xl"
+        >
+            <ContactForm client:load />
+        </div>
+    </main>
+    <Footer />
+</Layout>

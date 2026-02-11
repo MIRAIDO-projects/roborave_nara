@@ -1,11 +1,297 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import ThreeScene from "../components/ThreeScene";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { competitions } from "../data/competitions";
+import { getNews } from "../lib/microcms";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Fetch news
+let news: any[] = [];
+try {
+  const response = await getNews({ limit: 3 });
+  news = response.contents;
+} catch (e) {
+  console.error("Failed to fetch news:", e);
+  // Fallback or empty news
+}
+
+const pageTitle = "RoboRAVE Nara | 国際ロボット競技大会";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title={pageTitle}>
+  <Header />
+  
+  <main class="relative w-full overflow-hidden bg-white text-gray-900 selection:bg-orange-500 selection:text-white">
+    <!-- Hero Section -->
+    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+      <div class="absolute inset-0 z-0 opacity-60">
+        <ThreeScene client:only="react" />
+      </div>
+      <!-- Overlay Gradient -->
+      <div class="absolute inset-0 bg-gradient-to-b from-white/70 via-transparent to-white z-0 pointer-events-none"></div>
+
+      <div class="z-10 text-center px-4 max-w-5xl mx-auto hero-content opacity-0 translate-y-10">
+        <h2 class="text-blue-600 font-bold tracking-widest text-sm md:text-base mb-4 uppercase">
+          国際ロボット競技大会
+        </h2>
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight leading-none text-black">
+          Robots Are <br /> <span class="text-orange-500">Very Educational</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+          好奇心に火をつけろ。未来を創れ。<br class="hidden md:inline"/>
+          エンジニアリングの限界に挑戦する若きイノベーターたちのための国際的なステージ。
+        </p>
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+          <a
+            href="#competitions"
+            class="group relative px-8 py-3 bg-blue-600 text-white rounded-full font-bold overflow-hidden transition-all hover:scale-105 shadow-xl hover:shadow-blue-500/50"
+          >
+            <span class="relative z-10">競技を見る</span>
+            <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-blue-700 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </a>
+          <a
+            href="/news"
+            class="px-8 py-3 border border-gray-300 text-gray-700 backdrop-blur-sm rounded-full font-bold hover:bg-gray-100 transition-colors"
+          >
+            最新ニュース
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Competitions Section -->
+    <section id="competitions" class="py-24 md:py-32 bg-gray-50 relative">
+       <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
+       
+       <div class="container mx-auto px-4">
+        <div class="text-center mb-16 section-header">
+          <h2 class="text-4xl md:text-6xl font-bold mb-4 text-blue-900">Competitions</h2>
+          <p class="text-gray-600 text-lg">挑戦する競技を選べ。君のスキルを証明しろ。</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {competitions.map((comp, i) => (
+            <div class="group relative bg-white rounded-3xl overflow-hidden border border-gray-200 hover:border-orange-500/50 hover:shadow-2xl transition-all duration-300 competition-card">
+              <div class="aspect-video bg-gray-100 relative overflow-hidden">
+                {/* Image Placeholder or Actual Image */}
+                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style={`background-image: url('${comp.image}');`}></div>
+                 <div class="absolute inset-0 bg-blue-900/10 group-hover:bg-orange-500/10 transition-colors"></div>
+                 
+                 <!-- Icon overlay -->
+                 <div class="absolute bottom-4 left-4 p-3 bg-white/80 backdrop-blur-md rounded-2xl border border-gray-100 shadow-lg">
+                    <span class="text-2xl font-bold text-blue-900">0{i + 1}</span>
+                 </div>
+              </div>
+              
+              <div class="p-8">
+                <h3 class="text-2xl font-bold mb-3 text-gray-900 group-hover:text-blue-600 transition-colors">{comp.title}</h3>
+                <p class="text-gray-600 mb-6 line-clamp-3 leading-relaxed">
+                  {comp.description}
+                </p>
+                <a href={comp.link} class="inline-flex items-center text-sm font-bold uppercase tracking-widest text-blue-600 hover:text-orange-500 transition-colors">
+                  詳細を見る
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+       </div>
+    </section>
+
+    <!-- News Section -->
+    <section id="news" class="py-24 bg-white relative">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12 section-header">
+          <div>
+            <h2 class="text-4xl md:text-5xl font-bold mb-2 text-blue-900">News & Updates</h2>
+            <p class="text-gray-600">RoboRAVE Naraに関する最新情報。</p>
+          </div>
+          <a href="/news" class="mt-4 md:mt-0 px-6 py-2 border border-blue-900 text-blue-900 rounded-full hover:bg-blue-50 transition-colors">ニュース一覧へ</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {news.length > 0 ? (
+            news.map((item: any) => (
+              <a href={`/news/${item.id}`} class="block p-6 bg-gray-50 rounded-2xl border border-gray-200 hover:border-orange-500/50 hover:shadow-lg transition-all group news-card">
+                <div class="mb-4 text-orange-500 text-sm font-mono font-bold">
+                  {new Date(item.publishedAt).toLocaleDateString("ja-JP")}
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  {item.title}
+                </h3>
+              </a>
+            ))
+          ) : (
+            <div class="col-span-full text-center py-12 text-gray-400 border border-dashed border-gray-300 rounded-2xl">
+              <p>現在、新しいニュースはありません。</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-blue-900 relative overflow-hidden">
+      <!-- Decorative Elements -->
+      <div class="absolute top-1/2 left-0 w-64 h-64 bg-white/10 rounded-full blur-[100px]"></div>
+      <div class="absolute bottom-0 right-0 w-96 h-96 bg-orange-500/20 rounded-full blur-[120px]"></div>
+
+      <div class="container mx-auto px-4 relative z-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          <div class="order-2 md:order-1 about-content">
+             <h2 class="text-4xl md:text-6xl font-bold mb-6 text-white">Robots Are <br/><span class="text-orange-400">Very Educational</span></h2>
+             <p class="text-lg text-blue-100 leading-relaxed mb-6">
+               RoboRAVEは、学生たちが自律型ロボットを設計、製作、プログラミングする方法を学ぶ国際的なロボット教育プログラムです。
+             </p>
+             <p class="text-blue-200 mb-8 leading-relaxed">
+               単なる競技会にとどまらず、私たちは「協力」「創造性」、そして「楽しむこと」を重視しています。世界中の仲間と知識を共有し、問題を解決する場です。
+             </p>
+             <a href="https://www.roborave.org/" target="_blank" rel="noopener noreferrer" class="inline-block px-8 py-3 bg-white text-blue-900 font-bold rounded-full hover:bg-orange-500 hover:text-white transition-colors">もっと詳しく</a>
+          </div>
+          <div class="order-1 md:order-2 relative about-image">
+             <div class="aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-blue-800 to-blue-950 border border-white/10 relative group shadow-2xl">
+               <img src="/assets/amazing_challenge.png" alt="RoboRAVE Education" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+               <div class="absolute inset-0 bg-gradient-to-t from-blue-950/80 via-transparent to-transparent"></div>
+               <div class="absolute bottom-6 left-6 text-white font-bold text-xl">
+                 未来のエンジニアを育てる
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workshop Section -->
+    <section id="workshop" class="py-24 bg-gray-100 text-gray-900 relative overflow-hidden">
+      <div class="absolute inset-0 z-0">
+          <div class="absolute inset-0 bg-white/90 z-10"></div>
+          <img src="/assets/sumobot_challenge.png" alt="Workshop Background" class="w-full h-full object-cover blur-sm opacity-50" />
+      </div>
+
+      <div class="container mx-auto px-4 text-center relative z-20">
+        <div class="max-w-3xl mx-auto workshop-content">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6 text-blue-900">Robot Workshop</h2>
+          <p class="text-xl text-gray-600 mb-8">
+            ロボット工学は初めてですか？<br/>プログラミングやエンジニアリングの基礎を学ぶワークショップに参加しましょう。
+          </p>
+          <div class="p-8 bg-white/80 rounded-3xl border border-gray-200 mb-8 backdrop-blur-md inline-block w-full shadow-xl">
+             <h3 class="text-2xl font-bold mb-4 text-blue-600">次回の開催</h3>
+             <p class="text-lg mb-2 text-gray-800">テーマ: センサー入門</p>
+             <p class="text-gray-500">日時: 後日発表</p>
+             <p class="text-gray-500">場所: 奈良県内</p>
+          </div>
+          <a href="/contact" class="inline-block px-8 py-3 border border-orange-500 text-orange-500 font-bold rounded-full hover:bg-orange-500 hover:text-white transition-all bg-white/50 backdrop-blur-sm">
+            ワークショップに参加する
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 bg-blue-900 relative">
+       <div class="container mx-auto px-4 text-center contact-content">
+          <h2 class="text-5xl md:text-7xl font-bold mb-8 text-white">Ready to Challenge?</h2>
+          <p class="text-xl text-blue-100 mb-12 max-w-2xl mx-auto">
+            学生、先生、そしてスポンサーの皆様。ご連絡をお待ちしております。
+          </p>
+          <a href="/contact" class="inline-block px-10 py-4 bg-orange-500 text-white font-bold rounded-full text-lg shadow-lg hover:bg-orange-600 hover:scale-105 transition-all">
+            お問い合わせ
+          </a>
+       </div>
+    </section>
+
+  </main>
+  <Footer />
 </Layout>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero Animation
+  gsap.to(".hero-content", {
+    opacity: 1,
+    y: 0,
+    duration: 1.5,
+    ease: "power3.out",
+    delay: 0.5,
+  });
+
+  // Section Headers
+  gsap.utils.toArray(".section-header").forEach((header: any) => {
+    gsap.from(header, {
+      scrollTrigger: {
+        trigger: header,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      },
+      opacity: 0,
+      y: 30,
+      duration: 1,
+    });
+  });
+
+  // Competition Cards Stagger
+  gsap.from(".competition-card", {
+    scrollTrigger: {
+      trigger: "#competitions",
+      start: "top 75%",
+    },
+    opacity: 0,
+    y: 50,
+    duration: 0.8,
+    stagger: 0.2,
+  });
+
+  // News Cards Stagger
+  gsap.from(".news-card", {
+    scrollTrigger: {
+      trigger: "#news",
+      start: "top 75%",
+    },
+    opacity: 0,
+    y: 30,
+    duration: 0.6,
+    stagger: 0.1,
+  });
+  
+  // About Section
+  gsap.from(".about-content", {
+     scrollTrigger: {
+        trigger: "#about",
+        start: "top 70%",
+     },
+     opacity: 0,
+     x: -50,
+     duration: 1,
+  });
+  gsap.from(".about-image", {
+     scrollTrigger: {
+        trigger: "#about",
+        start: "top 70%",
+     },
+     opacity: 0,
+     x: 50,
+     duration: 1,
+     delay: 0.2
+  });
+
+  // Workshop & Contact
+   gsap.from([".workshop-content", ".contact-content"], {
+      scrollTrigger: {
+        trigger: "#workshop",
+        start: "top 70%",
+      },
+      opacity: 0,
+      y: 40,
+      duration: 1,
+      stagger: 0.3
+   });
+
+</script>

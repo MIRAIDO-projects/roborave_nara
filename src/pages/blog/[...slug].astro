@@ -1,0 +1,79 @@
+---
+import { getBlogs, getBlogDetail, type Blog } from "../../lib/microcms";
+import Layout from "../../layouts/Layout.astro";
+
+// Generate static paths for all blogs
+export async function getStaticPaths() {
+    const response = await getBlogs({ fields: ["id"] });
+    return response.contents.map((content: any) => ({
+        params: {
+            slug: content.id,
+        },
+    }));
+}
+
+// Get the blog entry for the current page
+const { slug } = Astro.params;
+const blog = await getBlogDetail(slug as string);
+
+// Meta data preparation
+const title = blog.title;
+const description = blog.content.substring(0, 100) + "..."; // Simple truncation
+const ogImage = blog.eyecatch?.url;
+---
+
+<Layout
+    title={title}
+    description={description}
+    image={ogImage}
+    type="Article"
+    publishDate={blog.publishedAt}
+>
+    <article class="max-w-3xl mx-auto px-4 py-12">
+        <header class="mb-8">
+            {
+                blog.eyecatch && (
+                    <img
+                        src={blog.eyecatch.url}
+                        alt={title}
+                        width={blog.eyecatch.width}
+                        height={blog.eyecatch.height}
+                        class="w-full h-auto rounded-lg shadow-lg mb-6"
+                    />
+                )
+            }
+            <div class="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                <time datetime={blog.publishedAt}
+                    >{new Date(blog.publishedAt!).toLocaleDateString()}</time
+                >
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
+                    >{blog.category?.name}</span
+                >
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+                {title}
+            </h1>
+            {
+                blog.tags && (
+                    <div class="flex gap-2 mt-4">
+                        {blog.tags.map((tag) => (
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                #{tag.name}
+                            </span>
+                        ))}
+                    </div>
+                )
+            }
+        </header>
+
+        <div class="prose prose-lg max-w-none" set:html={blog.content} />
+
+        <div class="mt-12 pt-8 border-t border-gray-200">
+            <a
+                href="/blog"
+                class="text-blue-600 hover:text-blue-800 transition-colors"
+                >&larr; Back to Blog List</a
+            >
+        </div>
+    </article>
+</Layout>
