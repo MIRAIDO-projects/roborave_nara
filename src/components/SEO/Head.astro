@@ -1,0 +1,111 @@
+---
+import { SEO } from "astro-seo";
+import {
+    generateOrganizationSchema,
+    generateWebsiteSchema,
+    generateArticleSchema,
+    generateBreadcrumbSchema,
+    generateSpeakableSchema,
+} from "../../utils/jsonLdGenerator";
+import type { Blog, News } from "../../lib/microcms";
+
+interface Props {
+    title?: string;
+    description?: string;
+    image?: string;
+    imageAlt?: string;
+    type?: "website" | "article" | "product";
+    publishDate?: string;
+    data?: Blog | News | any; // Type 'any' for product or other schemas for now
+    breadcrumbs?: { name: string; item: string }[];
+}
+
+const {
+    title = "RoboRAVE Nara",
+    description = "RoboRAVE Nara - 奈良で開催される国際ロボット競技大会。創造性とエンジニアリングの祭典。",
+    image = "/assets/hero_bg.png",
+    imageAlt,
+    type = "website",
+
+    data,
+    breadcrumbs,
+} = Astro.props;
+
+// Construct URLs
+const siteBase = import.meta.env.SITE || "https://roborave-nara.org";
+const canonicalURL = new URL(Astro.url.pathname, siteBase);
+const socialImageURL = new URL(image, siteBase);
+
+// Generate JSON-LD
+const schemas: any[] = [generateOrganizationSchema()];
+
+if (type === "website") {
+    schemas.push(generateWebsiteSchema());
+} else if (type === "article" && data) {
+    schemas.push(generateArticleSchema(data, canonicalURL.toString()));
+}
+
+if (breadcrumbs) {
+    schemas.push(generateBreadcrumbSchema(breadcrumbs));
+}
+
+// Speakable for accessibility and voice search
+schemas.push(generateSpeakableSchema());
+
+const jsonLdString = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": schemas,
+});
+---
+
+<SEO
+    title={title}
+    description={description}
+    openGraph={{
+        basic: {
+            title: title,
+            type: type,
+            image: socialImageURL.toString(),
+            url: canonicalURL.toString(),
+        },
+        optional: {
+            description: description,
+            siteName: "RoboRAVE Nara",
+            locale: "ja_JP",
+        },
+        image: {
+            alt: imageAlt || description, // Critical for AI/Accessibility
+        },
+    }}
+    twitter={{
+        card: "summary_large_image",
+        site: "@roborave_nara",
+        creator: "@roborave_nara",
+        image: socialImageURL.toString(),
+        imageAlt: imageAlt || description,
+    }}
+    extend={{
+        link: [{ rel: "canonical", href: canonicalURL.toString() }],
+        meta: [
+            {
+                name: "viewport",
+                content: "width=device-width, initial-scale=1",
+            },
+            { name: "generator", content: Astro.generator },
+            // GEO / Local SEO Optimization
+            { name: "geo.region", content: "JP-29" }, // Nara Prefecture
+            { name: "geo.placename", content: "Nara" },
+            { name: "geo.position", content: "34.6851;135.8048" }, // Approximate coordinates for Nara
+            { name: "ICBM", content: "34.6851, 135.8048" },
+            // AI Reader Optimization
+            {
+                name: "robots",
+                content:
+                    "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+            },
+        ],
+    }}
+/>
+
+<!-- JSON-LD Injection for Google SGE / Rich Results -->
+<script type="application/ld+json" set:html={jsonLdString} />

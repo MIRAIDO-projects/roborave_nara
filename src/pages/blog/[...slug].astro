@@ -1,5 +1,5 @@
 ---
-import { getBlogs, getBlogDetail, type Blog } from "../../lib/microcms";
+import { getBlogs, getBlogDetail } from "../../lib/microcms";
 import Layout from "../../layouts/Layout.astro";
 
 // Generate static paths for all blogs
@@ -26,8 +26,9 @@ const ogImage = blog.eyecatch?.url;
     title={title}
     description={description}
     image={ogImage}
-    type="Article"
+    type="article"
     publishDate={blog.publishedAt}
+    data={blog}
 >
     <article class="max-w-3xl mx-auto px-4 py-12">
         <header class="mb-8">

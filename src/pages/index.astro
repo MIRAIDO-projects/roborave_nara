@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ThreeScene from "../components/ThreeScene";
+import AccessibleCanvas from "../components/Three/AccessibleCanvas.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { competitions } from "../data/competitions";
@@ -26,7 +27,14 @@ const pageTitle = "RoboRAVE Nara | 国際ロボット競技大会";
     <!-- Hero Section -->
     <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
       <div class="absolute inset-0 z-0 opacity-60">
-        <ThreeScene client:only="react" />
+        <AccessibleCanvas
+          headingHtml="<h2>Interactive Particle Network</h2>"
+          contentHtml="<p>An interactive 3D simulation representing the connection between students, technology, and the future. The particles react to cursor movement, symbolizing the dynamic nature of learning and innovation at RoboRAVE Nara.</p>"
+          caption="Background: A dynamic field of orange particles in 3D space."
+          className="w-full h-full"
+        >
+          <ThreeScene client:only="react" slot="canvas" />
+        </AccessibleCanvas>
       </div>
       <!-- Overlay Gradient -->
       <div class="absolute inset-0 bg-gradient-to-b from-white/70 via-transparent to-white z-0 pointer-events-none"></div>

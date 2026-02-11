@@ -1,6 +1,5 @@
 ---
-import { SEO } from "astro-seo";
-import Schema from "../components/Schema.astro";
+import Head from "../components/SEO/Head.astro";
 import "../styles/global.css";
 
 import CookieBanner from "../components/CookieBanner.astro";
@@ -9,8 +8,10 @@ interface Props {
 	title?: string;
 	description?: string;
 	image?: string;
-	type?: "WebSite" | "Article" | "Organization" | "LocalBusiness";
+	type?: "website" | "article" | "product";
 	publishDate?: string;
+	data?: any; // For structured data
+	breadcrumbs?: { name: string; item: string }[];
 }
 ---
 
@@ -18,42 +19,20 @@ interface Props {
 <html lang="ja">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
 		<link
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap"
 			rel="stylesheet"
 		/>
 
-		<SEO
-			title={Astro.props.title || "RoboRAVE Nara"}
-			titleTemplate="%s | RoboRAVE Nara"
-			description={Astro.props.description ||
-				"RoboRAVE Nara - 奈良で開催される国際ロボット競技大会。創造性とエンジニアリングの祭典。"}
-			openGraph={{
-				basic: {
-					title: Astro.props.title || "RoboRAVE Nara",
-					type: "website",
-					image: Astro.props.image || "/assets/hero_bg.png",
-				},
-			}}
-			twitter={{
-				creator: "@roborave_nara",
-			}}
-			extend={{
-				meta: [
-					{ name: "twitter:card", content: "summary_large_image" },
-				],
-			}}
-		/>
-		<Schema
-			title={Astro.props.title || "RoboRAVE Nara"}
-			description={Astro.props.description ||
-				"RoboRAVE Nara - 奈良で開催される国際ロボット競技大会。創造性とエンジニアリングの祭典。"}
-			type={Astro.props.type}
+		<Head
+			title={Astro.props.title}
+			description={Astro.props.description}
 			image={Astro.props.image}
+			type={Astro.props.type}
 			publishDate={Astro.props.publishDate}
+			data={Astro.props.data}
+			breadcrumbs={Astro.props.breadcrumbs}
 		/>
 
 		<style is:global>

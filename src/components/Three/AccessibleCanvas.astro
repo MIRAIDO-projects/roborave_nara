@@ -1,0 +1,99 @@
+---
+/**
+ * AccessibleCanvas.astro
+ *
+ * A wrapper component for WebGL/Three.js content that provides a semantic HTML "shadow" layer.
+ * This solves the "Black Box Problem" where AI crawlers cannot interpret Canvas content.
+ *
+ * Strategy:
+ * 1. Render the Canvas in a z-indexed layer.
+ * 2. Render semantic HTML (from CMS) in a visually hidden but machine-readable layer.
+ * 3. Ensure the hidden layer is ignored by users but accessible to Screen Readers and Bots.
+ */
+
+interface Props {
+    headingHtml?: string; // h1, h2, etc.
+    contentHtml?: string; // Main text content
+    listItems?: string[]; // For lists
+    caption?: string; // Short description
+    className?: string; // Wrapper classes
+}
+
+const {
+    headingHtml,
+    contentHtml,
+    listItems = [],
+    caption,
+    className = "w-full h-screen relative",
+} = Astro.props;
+---
+
+<div class={`accessible-canvas-wrapper ${className}`}>
+    {/* Layer 1: The Visual WebGL Experience */}
+    <div class="canvas-layer absolute inset-0 z-10" aria-hidden="true">
+        <slot name="canvas" />
+    </div>
+
+    {/* Layer 2: The Semantic "Shadow" Content for AIO / SEO / Accessibility */}
+    {
+        /* We use specific styling to ensure AI compliance (avoiding display:none) */
+    }
+    <div
+        class="semantic-layer absolute inset-0 z-0 pointer-events-none opacity-[0.01] overflow-hidden w-full h-full"
+        role="region"
+        aria-label="Interactive 3D Content Description"
+    >
+        <article>
+            {/* Semantic Heading */}
+            {
+                headingHtml && (
+                    <div set:html={headingHtml} class="article-heading" />
+                )
+            }
+
+            {/* Core Content */}
+            {
+                contentHtml && (
+                    <div
+                        class="article-body prose prose-invert"
+                        set:html={contentHtml}
+                    />
+                )
+            }
+
+            {/* Structured Lists (Great for SGE) */}
+            {
+                listItems.length > 0 && (
+                    <ul class="article-list">
+                        {listItems.map((item) => (
+                            <li>{item}</li>
+                        ))}
+                    </ul>
+                )
+            }
+
+            {/* Caption / Summary */}
+            {caption && <p class="article-caption">{caption}</p>}
+
+            {/* Fallback Slot for custom shadow content */}
+            <slot name="fallback" />
+        </article>
+    </div>
+</div>
+
+<style>
+    /* 
+   * AIO (AI Optimization) Styles
+   * Ensure content is technically "visible" to the rendering engine 
+   * but practically invisible to the user.
+   */
+    .semantic-layer {
+        /* 
+     * Keep layout footprint minimal but non-zero to avoid "hidden" penalties. 
+     * However, since we use absolute positioning in the parent, 
+     * we can let it fill the space but make it transparent.
+     */
+        clip-path: inset(50%); /* Alternative to width/height 1px */
+        white-space: nowrap; /* Prevent wrapping affecting layout */
+    }
+</style>
